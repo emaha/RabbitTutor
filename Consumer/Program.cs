@@ -1,14 +1,6 @@
-﻿using Common;
-using EasyNetQ;
-using System;
-using System.IO;
-using System.Runtime.Serialization.Json;
-using System.Threading;
-using System.Threading.Tasks;
-using GreenPipes;
+﻿using GreenPipes;
 using MassTransit;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
+using System;
 
 namespace Consumer
 {
@@ -18,7 +10,6 @@ namespace Consumer
 
         private static void Main(string[] args)
         {
-            // MASS TRANSIT
             var bus = Bus.Factory.CreateUsingRabbitMq(cfg =>
             {
                 var host = cfg.Host(new Uri("rabbitmq://192.168.0.192"), h =>
@@ -26,17 +17,19 @@ namespace Consumer
                     h.Username("guest");
                     h.Password("guest");
                 });
-                cfg.UseDelayedExchangeMessageScheduler();
 
-                cfg.ReceiveEndpoint(host, "hello",
+                cfg.ReceiveEndpoint(host, "myq",
                     ep =>
                     {
-                        // Порядок имеет значение
-                        ep.UseScheduledRedelivery(ret => ret.Intervals(TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(60)));
-                        ep.UseMessageRetry(ret => ret.Interval(2, TimeSpan.FromSeconds(5)));
+                        ep.Consumer<FileReceivedConsumer>();
 
-                        ep.Consumer<OrderConsumer>();
+                        //ep.Observer(fileObserver);
+                        // Порядок имеет значение
+                        //ep.UseScheduledRedelivery(ret => ret.Intervals(TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(60)));
+                        //ep.UseMessageRetry(ret => ret.Interval(2, TimeSpan.FromSeconds(5)));
                     });
+                //cfg.UseDelayedExchangeMessageScheduler();
+                //cfg.BusObserver(busObserver);
             });
 
             bus.Start();
@@ -45,6 +38,36 @@ namespace Consumer
             Console.ReadKey();
 
             bus.Stop();
+
+            #region old
+
+            //MASSTRANSIT COMMAND
+            //var bus = Bus.Factory.CreateUsingRabbitMq(cfg =>
+            //{
+            //    var host = cfg.Host(new Uri("rabbitmq://192.168.0.192"), h =>
+            //    {
+            //        h.Username("guest");
+            //        h.Password("guest");
+            //    });
+            //    cfg.UseDelayedExchangeMessageScheduler();
+
+            //    cfg.ReceiveEndpoint(host, "hello",
+            //        ep =>
+            //        {
+            //            // Порядок имеет значение
+            //            ep.UseScheduledRedelivery(ret => ret.Intervals(TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(60)));
+            //            ep.UseMessageRetry(ret => ret.Interval(2, TimeSpan.FromSeconds(5)));
+
+            //            ep.Consumer<OrderConsumer>();
+            //        });
+            //});
+
+            //bus.Start();
+
+            //Console.WriteLine("Press any key to exit");
+            //Console.ReadKey();
+
+            //bus.Stop();
 
             // EasyNetQ
             //using (var bus = RabbitHutch.CreateBus("host=192.168.0.192"))
@@ -101,6 +124,8 @@ namespace Consumer
 
             //Console.WriteLine(" Press [enter] to exit.");
             //Console.ReadLine();
+
+            #endregion old
         }
     }
 }

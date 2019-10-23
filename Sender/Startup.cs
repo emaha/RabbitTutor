@@ -2,6 +2,8 @@
 using Common;
 using GreenPipes;
 using MassTransit;
+using MassTransit.RabbitMqTransport.Topology.Topologies;
+using MassTransit.Topology.Topologies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -27,18 +29,14 @@ namespace Sender
             {
                 configurator.AddBus(provider => Bus.Factory.CreateUsingRabbitMq(cfg =>
                 {
-                    cfg.AutoDelete = false;
-                    cfg.Durable = true;
-                    cfg.Exclusive = false;
-
-                    var host = cfg.Host("192.168.0.192", "/", hostConfigurator =>
+                    var host = cfg.Host(new Uri("rabbitmq://192.168.0.192"), hostConfigurator =>
                     {
                         hostConfigurator.Username("guest");
                         hostConfigurator.Password("guest");
                     });
                 }));
 
-                configurator.AddRequestClient<Order>();
+                configurator.AddRequestClient<IFileReceivedEvent>();
             });
 
             services.AddSingleton<IHostedService, BusService>();

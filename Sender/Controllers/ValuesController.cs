@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using RabbitMQ.Client;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Runtime.Serialization.Json;
@@ -28,16 +29,16 @@ namespace Sender.Controllers
         [HttpPost("mass_command")]
         public async Task MassCommand(CancellationToken cancellationToken)
         {
-            await _busControl.Send(Order.Create(), cancellationToken);
-        }
+            var ep = _busControl.GetSendEndpoint(new Uri("rabbitmq://192.168.0.192/myq"));
+            var sendEp = ep.Result;
 
-        [HttpPost("mass_event")]
-        public async Task MassEvent(CancellationToken cancellationToken)
-        {
-            for (int i = 0; i < 100; i++)
-            {
-                await _busControl.Publish(Order.Create(), cancellationToken);
-            }
+            Task sendTask = sendEp.Send(new FileReceivedEventEvent { FileId = Guid.NewGuid() }, cancellationToken);
+
+            await Task.WhenAll(sendTask);
+
+            Console.WriteLine("Sended");
+            //await _publishEndpoint.Publish(new FileReceivedEventEvent { FileId = Guid.NewGuid() }, cancellationToken);
+            //await _busControl.Publish(new FileReceivedEventEvent { FileId = Guid.NewGuid() }, cancellationToken);
         }
 
         [HttpPost("rabbit")]
