@@ -18,10 +18,10 @@ namespace Consumer
                     h.Password("guest");
                 });
 
-                cfg.ReceiveEndpoint(host, "myq",
+                cfg.ReceiveEndpoint(host, "Store",
                     ep =>
                     {
-                        ep.Consumer<FileReceivedConsumer>();
+                        ep.Consumer(() => new FileReceivedConsumer());
 
                         //ep.Observer(fileObserver);
                         // Порядок имеет значение
@@ -29,7 +29,6 @@ namespace Consumer
                         //ep.UseMessageRetry(ret => ret.Interval(2, TimeSpan.FromSeconds(5)));
                     });
                 //cfg.UseDelayedExchangeMessageScheduler();
-                //cfg.BusObserver(busObserver);
             });
 
             bus.Start();

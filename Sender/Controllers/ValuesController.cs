@@ -29,16 +29,16 @@ namespace Sender.Controllers
         [HttpPost("mass_command")]
         public async Task MassCommand(CancellationToken cancellationToken)
         {
-            var ep = _busControl.GetSendEndpoint(new Uri("rabbitmq://192.168.0.192/myq"));
-            var sendEp = ep.Result;
+            //var ep = _busControl.GetSendEndpoint(new Uri("rabbitmq://192.168.0.192/dir"));
+            //var sendEp = ep.Result;
 
-            Task sendTask = sendEp.Send(new FileReceivedEventEvent { FileId = Guid.NewGuid() }, cancellationToken);
+            //Task sendTask = sendEp.Send(new FileReceivedEventEvent { Message = Guid.NewGuid().ToString() }, cancellationToken);
 
-            await Task.WhenAll(sendTask);
+            //await Task.WhenAll(sendTask);
 
-            Console.WriteLine("Sended");
+            Console.WriteLine("Sent");
             //await _publishEndpoint.Publish(new FileReceivedEventEvent { FileId = Guid.NewGuid() }, cancellationToken);
-            //await _busControl.Publish(new FileReceivedEventEvent { FileId = Guid.NewGuid() }, cancellationToken);
+            await _busControl.Publish(new FileReceivedEventEvent { Message = Guid.NewGuid().ToString() }, cancellationToken);
         }
 
         [HttpPost("rabbit")]

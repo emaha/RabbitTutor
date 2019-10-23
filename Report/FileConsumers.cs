@@ -1,9 +1,9 @@
-﻿using Common;
-using MassTransit;
-using System;
+﻿using System;
 using System.Threading.Tasks;
+using Common;
+using MassTransit;
 
-namespace Consumer
+namespace Report
 {
     internal class FileReceivedConsumer : IConsumer<IFileReceivedEvent>
     {

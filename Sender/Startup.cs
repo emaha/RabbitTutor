@@ -34,6 +34,11 @@ namespace Sender
                         hostConfigurator.Username("guest");
                         hostConfigurator.Password("guest");
                     });
+
+                    cfg.ReceiveEndpoint(host, "Shop",
+                        ep =>
+                        {
+                        });
                 }));
 
                 configurator.AddRequestClient<IFileReceivedEvent>();
