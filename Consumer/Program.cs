@@ -23,7 +23,6 @@ namespace Consumer
                     {
                         ep.Consumer(() => new FileReceivedConsumer());
 
-                        //ep.Observer(fileObserver);
                         // Порядок имеет значение
                         //ep.UseScheduledRedelivery(ret => ret.Intervals(TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(60)));
                         //ep.UseMessageRetry(ret => ret.Interval(2, TimeSpan.FromSeconds(5)));
