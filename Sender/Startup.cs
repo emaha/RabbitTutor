@@ -35,10 +35,18 @@ namespace Sender
                         hostConfigurator.Password("guest");
                     });
 
-                    cfg.ReceiveEndpoint(host, "Shop",
-                        ep =>
-                        {
-                        });
+                    cfg.Send<IFileReceivedEvent>(x =>
+                    {
+                        x.UseRoutingKeyFormatter(context =>
+                          {
+                              var msg = context.Message as FileReceivedEventEvent;
+                              return msg?.Message == "ASD" ? "routingKey" : "routingKey2";
+                          });
+                    });
+                    cfg.Message<IFileReceivedEvent>(x => x.SetEntityName("TestMessage"));
+                    cfg.Publish<IFileReceivedEvent>(x => { x.ExchangeType = "direct"; });
+
+                    cfg.ReceiveEndpoint(host, "Shop", ep => { });
                 }));
 
                 configurator.AddRequestClient<IFileReceivedEvent>();

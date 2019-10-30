@@ -18,6 +18,28 @@ namespace Consumer
                     h.Password("guest");
                 });
 
+                cfg.ReceiveEndpoint(host, "TestMessage_Queue", e =>
+                {
+                    e.BindMessageExchanges = false;
+                    e.Consumer(() => new FileReceivedConsumer(1));
+                    e.Bind("TestMessage", x =>
+                    {
+                        x.ExchangeType = "direct";
+                        x.RoutingKey = "routingKey";
+                    });
+                });
+
+                cfg.ReceiveEndpoint(host, "TestMessage_Queue2", e =>
+                {
+                    e.BindMessageExchanges = false;
+                    e.Consumer(() => new FileReceivedConsumer(2));
+                    e.Bind("TestMessage", x =>
+                    {
+                        x.ExchangeType = "direct";
+                        x.RoutingKey = "routingKey2";
+                    });
+                });
+
                 cfg.ReceiveEndpoint(host, "Store",
                     ep =>
                     {
