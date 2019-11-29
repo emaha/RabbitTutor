@@ -2,7 +2,7 @@
 
 namespace Common
 {
-    public class FileReceivedEventEvent : IFileReceivedEvent
+    public class FileReceivedEvent : IFileReceivedEvent
     {
         public string Message { get; set; }
     }

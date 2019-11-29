@@ -29,27 +29,34 @@ namespace Sender
             {
                 configurator.AddBus(provider => Bus.Factory.CreateUsingRabbitMq(cfg =>
                 {
-                    var host = cfg.Host(new Uri("rabbitmq://192.168.0.192"), hostConfigurator =>
+                    var host = cfg.Host(new Uri("rabbitmq://192.168.139.102"), hostConfigurator =>
                     {
                         hostConfigurator.Username("guest");
                         hostConfigurator.Password("guest");
                     });
 
-                    cfg.Send<IFileReceivedEvent>(x =>
-                    {
-                        x.UseRoutingKeyFormatter(context =>
-                          {
-                              var msg = context.Message as FileReceivedEventEvent;
-                              return msg?.Message == "ASD" ? "routingKey" : "routingKey2";
-                          });
-                    });
-                    cfg.Message<IFileReceivedEvent>(x => x.SetEntityName("TestMessage"));
-                    cfg.Publish<IFileReceivedEvent>(x => { x.ExchangeType = "direct"; });
+                    // Настройка топологии для Send
+                    //cfg.Send<IFileReceivedEvent>(x =>
+                    //{
+                    //    x.UseRoutingKeyFormatter(context =>
+                    //      {
+                    //          var msg = context.Message as FileReceivedEvent;
+                    //          return msg?.Message == "ASD" ? "routingKey" : "routingKey2";
+                    //      });
+                    //});
+                    //cfg.Message<IFileReceivedEvent>(x => x.SetEntityName("TestMessage"));
 
-                    cfg.ReceiveEndpoint(host, "Shop", ep => { });
+                    // Настройка топологии для Publish
+                    cfg.Publish<IFileReceivedEvent>(x =>
+                    {
+                        //x.ExchangeType = "direct";
+                    });
+
+                    // Регистрация потребителя (если нужно)
+                    //cfg.ReceiveEndpoint(host, "Shop", ep => { });
                 }));
 
-                configurator.AddRequestClient<IFileReceivedEvent>();
+                //configurator.AddRequestClient<IFileReceivedEvent>();
             });
 
             services.AddSingleton<IHostedService, BusService>();

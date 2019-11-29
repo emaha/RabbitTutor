@@ -9,13 +9,13 @@ namespace Report
         {
             var bus = Bus.Factory.CreateUsingRabbitMq(cfg =>
             {
-                var host = cfg.Host(new Uri("rabbitmq://192.168.0.192"), h =>
+                var host = cfg.Host(new Uri("rabbitmq://192.168.139.102"), h =>
                 {
                     h.Username("guest");
                     h.Password("guest");
                 });
 
-                cfg.ReceiveEndpoint(host, "Report",
+                cfg.ReceiveEndpoint(host, "Report1_Queue",
                     ep =>
                     {
                         ep.Consumer(() => new FileReceivedConsumer());

@@ -12,33 +12,35 @@ namespace Consumer
         {
             var bus = Bus.Factory.CreateUsingRabbitMq(cfg =>
             {
-                var host = cfg.Host(new Uri("rabbitmq://192.168.0.192"), h =>
+                var host = cfg.Host(new Uri("rabbitmq://192.168.139.102"), h =>
                 {
                     h.Username("guest");
                     h.Password("guest");
                 });
 
-                cfg.ReceiveEndpoint(host, "TestMessage_Queue", e =>
+                // В эту очередь будут попадать сообщения, которые были посланы с RoutingKey = "routingKey"
+                cfg.ReceiveEndpoint(host, "Consumer1_Queue", e =>
                 {
-                    e.BindMessageExchanges = false;
+                    //e.BindMessageExchanges = false;
                     e.Consumer(() => new FileReceivedConsumer(1));
-                    e.Bind("TestMessage", x =>
-                    {
-                        x.ExchangeType = "direct";
-                        x.RoutingKey = "routingKey";
-                    });
+                    //e.Bind("TestMessage", x =>
+                    //{
+                    //    x.ExchangeType = "direct";
+                    //    x.RoutingKey = "routingKey";
+                    //});
                 });
 
-                cfg.ReceiveEndpoint(host, "TestMessage_Queue2", e =>
-                {
-                    e.BindMessageExchanges = false;
-                    e.Consumer(() => new FileReceivedConsumer(2));
-                    e.Bind("TestMessage", x =>
-                    {
-                        x.ExchangeType = "direct";
-                        x.RoutingKey = "routingKey2";
-                    });
-                });
+                // В эту с RoutingKey = "routingKey2"
+                //cfg.ReceiveEndpoint(host, "TestMessage_Queue2", e =>
+                //{
+                //    e.BindMessageExchanges = false;
+                //    e.Consumer(() => new FileReceivedConsumer(2));
+                //    e.Bind("TestMessage", x =>
+                //    {
+                //        x.ExchangeType = "direct";
+                //        x.RoutingKey = "routingKey2";
+                //    });
+                //});
 
                 cfg.ReceiveEndpoint(host, "Store",
                     ep =>
@@ -46,10 +48,10 @@ namespace Consumer
                         ep.Consumer(() => new FileReceivedConsumer());
 
                         // Порядок имеет значение
-                        //ep.UseScheduledRedelivery(ret => ret.Intervals(TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(60)));
-                        //ep.UseMessageRetry(ret => ret.Interval(2, TimeSpan.FromSeconds(5)));
+                        ep.UseScheduledRedelivery(ret => ret.Intervals(TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(60)));
+                        ep.UseMessageRetry(ret => ret.Interval(2, TimeSpan.FromSeconds(5)));
                     });
-                //cfg.UseDelayedExchangeMessageScheduler();
+                cfg.UseDelayedExchangeMessageScheduler();
             });
 
             bus.Start();

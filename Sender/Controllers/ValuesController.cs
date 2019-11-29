@@ -29,15 +29,20 @@ namespace Sender.Controllers
         [HttpPost("mass_event")]
         public async Task MassEvent(CancellationToken cancellationToken)
         {
-            // Отправить сообщение прямо в очередь
-            //var ep = _busControl.GetSendEndpoint(new Uri("rabbitmq://192.168.0.192/TestMessage_Queue"));
-            //var sendEp = ep.Result;
-            //Task sendTask = sendEp.Send(new FileReceivedEventEvent { Message = Guid.NewGuid().ToString() }, cancellationToken);
-            //await Task.WhenAll(sendTask);
-
-            await _busControl.Publish(new FileReceivedEventEvent { Message = "ASD" }, cancellationToken);
-            //await _busControl.Send<IFileReceivedEvent>(new FileReceivedEventEvent { Message = Guid.NewGuid().ToString() }, cancellationToken);
+            Console.WriteLine("TIME: " + DateTime.Now.ToString("O"));
+            await _busControl.Publish(new FileReceivedEvent { Message = "ASD" }, cancellationToken);
+            Console.WriteLine("TIME: " + DateTime.Now.ToString("O"));
         }
+
+        [HttpPost("cmd")]
+        public async Task Command(CancellationToken cancellationToken)
+        {
+            // Отправить сообщение прямо в очередь
+            var endpoint = _busControl.GetSendEndpoint(new Uri("rabbitmq://192.168.0.192/Consumer1_Queue")).Result;
+            await endpoint.Send(new FileReceivedEvent { Message = "FEWFE" }, cancellationToken);
+        }
+
+        #region Another
 
         [HttpPost("rabbit")]
         public async Task RabbitClient()
@@ -78,5 +83,7 @@ namespace Sender.Controllers
 
             Console.WriteLine("Sent");
         }
+
+        #endregion Another
     }
 }

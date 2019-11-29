@@ -17,6 +17,7 @@ namespace Consumer
 
         public Task Consume(ConsumeContext<IFileReceivedEvent> context)
         {
+            Console.WriteLine("TIME: " + DateTime.Now.ToString("O"));
             Console.WriteLine($"ID: {_id}. Updating customer: {context.Message.Message}");
 
             return Task.FromResult(context.Message);
